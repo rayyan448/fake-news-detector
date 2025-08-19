@@ -54,7 +54,7 @@ def get_top_features(text, model, vectorizer, n=5):
     if len(valid_indices) == 0:
         return [], []
 
-    tfidf_scores = X.toarray()[valid_indices]
+    tfidf_scores = X.toarray()[0][valid_indices]
     coef_scores = coefs[valid_indices]
     scores = tfidf_scores * coef_scores
 
@@ -89,7 +89,17 @@ if st.button("Predict"):
             confidence = float(np.max(proba)) * 100
 
         st.success(f"Prediction: {label}")
-        st.info(f"Confidence: {confidence:.2f}%")
+
+        # Color-coded confidence with progress bar
+        confidence_percent = confidence  # e.g., 82.5
+        st.progress(int(confidence_percent))
+
+        if confidence_percent > 80:
+            st.markdown(f"<span style='color:green; font-weight:bold'>Confidence: {confidence_percent:.2f}%</span>", unsafe_allow_html=True)
+        elif confidence_percent > 50:
+            st.markdown(f"<span style='color:orange; font-weight:bold'>Confidence: {confidence_percent:.2f}%</span>", unsafe_allow_html=True)
+        else:
+            st.markdown(f"<span style='color:red; font-weight:bold'>Confidence: {confidence_percent:.2f}%</span>", unsafe_allow_html=True)
 
         st.subheader("Top words influencing the prediction")
         top_pos, top_neg = get_top_features(headline, model, vectorizer)
